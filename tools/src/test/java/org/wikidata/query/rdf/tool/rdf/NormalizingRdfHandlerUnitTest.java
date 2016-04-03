@@ -77,7 +77,7 @@ public class NormalizingRdfHandlerUnitTest {
     @Test
     public void testGoodDecimalPositive() throws RDFHandlerException {
 //        testDecimal("+1234");
-        testDecimal("+1234.567");
+        testDecimal("1234.567");
         testDecimal("1234.5");
     }
 

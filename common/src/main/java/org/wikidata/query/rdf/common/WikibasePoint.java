@@ -154,11 +154,9 @@ public class WikibasePoint {
     public String toOrder(CoordinateOrder order) {
         final StringBuffer buf = new StringBuffer();
         if (globe != null) {
-            buf.append("<");
-            buf.append(globe);
-            buf.append("> ");
+            return null;
         }
-        buf.append("Point(");
+        buf.append("POINT(");
         if (order == CoordinateOrder.LAT_LONG) {
             buf.append(latitude);
             buf.append(" ");

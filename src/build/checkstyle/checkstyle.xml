@@ -127,7 +127,9 @@
 
     <!-- Really opinionated. Probably wrong. -->
     <module name="ClassFanOutComplexity" />
-    <module name="CyclomaticComplexity" />
+    <module name="CyclomaticComplexity" >
+      <property name="max" value="15"/>
+    </module>
     <module name="NPathComplexity" />
 
     <!-- These are explicitly ok -->

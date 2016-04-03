@@ -13,6 +13,7 @@ import org.openrdf.model.vocabulary.XMLSchema;
 import org.openrdf.rio.RDFHandler;
 import org.openrdf.rio.RDFHandlerException;
 import org.wikidata.query.rdf.common.uri.Ontology;
+import org.wikidata.query.rdf.common.uri.GeoSparql;
 
 /**
  * An RDFHandler that wraps another handler normalizing any of the (currently)
@@ -51,6 +52,8 @@ public class NormalizingRdfHandler extends DelegatingRdfHandler {
             object = fixUri((URI) object);
         } else if (object instanceof Literal) {
             object = fixNumber((Literal)object);
+            //change datatype for off-world coordinates and rectify lowercase "Point"
+            object = removeGlobe((Literal)object);
         }
 
         // No need to build a new statement if the old one matches.
@@ -58,6 +61,7 @@ public class NormalizingRdfHandler extends DelegatingRdfHandler {
                 || object != statement.getObject()) {
             statement = new StatementImpl(subject, predicate, object);
         }
+
         super.handleStatement(statement);
     }
 
@@ -105,6 +109,24 @@ public class NormalizingRdfHandler extends DelegatingRdfHandler {
         } else if (value.getDatatype().equals(XMLSchema.INTEGER)) {
             if (!isNumericString(value.getLabel())) {
                 return new LiteralImpl("0", XMLSchema.INTEGER);
+            }
+        }
+        return value;
+    }
+
+    /**
+     * Checks for datatype wktLiteral with CRS
+     * If so, return wktCRSLiteral datatype.
+     * @param value
+     * @return
+     */
+    private Value removeGlobe(Literal value) {
+        if (value.getDatatype().equals(GeoSparql.WKT_LITERAL)) {
+            String label = value.getLabel();
+            if (label.contains("<")) {
+                return new LiteralImpl(label.substring(label.lastIndexOf(">") + 2).replace("Point", "POINT"), GeoSparql.WKT_CRS_LITERAL);
+            } else {
+                return new LiteralImpl(label.replace("Point", "POINT"), GeoSparql.WKT_LITERAL);
             }
         }
         return value;

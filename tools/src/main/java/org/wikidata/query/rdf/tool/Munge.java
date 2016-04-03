@@ -28,6 +28,9 @@ import org.openrdf.rio.RDFHandlerException;
 import org.openrdf.rio.RDFParseException;
 import org.openrdf.rio.RDFParser;
 import org.openrdf.rio.Rio;
+import org.openrdf.rio.RDFWriter;
+import org.openrdf.rio.WriterConfig;
+import org.openrdf.rio.helpers.BasicWriterSettings;
 import org.openrdf.rio.turtle.TurtleParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -617,8 +620,12 @@ public class Munge implements Runnable {
          *             initializing
          */
         private void setHandlerFromLastWriter() throws RDFHandlerException {
-            handler = Rio.createWriter(RDFFormat.TURTLE, lastWriter);
-            handler = new PrefixRecordingRdfHandler(handler, prefixes);
+            final RDFWriter writer = Rio.createWriter(RDFFormat.TURTLE, lastWriter);
+            final WriterConfig config = writer.getWriterConfig();
+            config.set(BasicWriterSettings.PRETTY_PRINT, false);
+            config.set(BasicWriterSettings.RDF_LANGSTRING_TO_LANG_LITERAL, true);
+            config.set(BasicWriterSettings.XSD_STRING_TO_PLAIN_LITERAL, true);
+            handler = new PrefixRecordingRdfHandler(writer, prefixes);
             for (Map.Entry<String, String> prefix : prefixes.entrySet()) {
                 handler.handleNamespace(prefix.getKey(), prefix.getValue());
             }
